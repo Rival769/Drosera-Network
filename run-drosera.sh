@@ -1,24 +1,25 @@
 #!/bin/bash
 
-# Masuk ke direktori proyek
-cd ~/workspaces/Drosera-Network || exit
+# Pindah ke direktori script berada
+cd "$(dirname "$0")"
 
-# Build node
-echo "Building Drosera node..."
+# Update & install dependencies
+echo "[+] Installing dependencies..."
+sudo apt update && sudo apt install -y pkg-config libssl-dev build-essential clang make
+
+# Install Rust via rustup
+echo "[+] Installing Rust..."
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+source "$HOME/.cargo/env"
+
+# Verifikasi versi Rust
+rustc --version
+cargo --version
+
+# Build drosera
+echo "[+] Building Drosera..."
 cargo build --release
 
-# Cek apakah build berhasil
-if [ $? -ne 0 ]; then
-  echo "Build gagal. Periksa error di atas."
-  exit 1
-fi
-
-# Buat folder log jika belum ada
-mkdir -p logs
-
-# Buat nama file log berdasarkan tanggal dan waktu
-LOG_FILE="logs/drosera-$(date '+%Y-%m-%d_%H-%M-%S').log"
-
-# Jalankan node dan simpan log
-echo "Menjalankan Drosera node... Log disimpan di $LOG_FILE"
-./target/release/drosera-node --chain testnet | tee "$LOG_FILE"
+# Jalankan node
+echo "[+] Menjalankan Drosera Node..."
+./target/release/drosera-node
